@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animasi Tata Surya Kompleks</title>
+    <style>
+        /* --- Pengaturan Dasar & Latar Belakang --- */
+        :root {
+            /* Variabel global untuk interaksi mouse (jika digunakan oleh kursor) */
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+            --mouse-influence: 0;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000005; /* Ruang angkasa sangat gelap */
+            overflow: hidden; /* Hindari scrollbar */
+            font-family: sans-serif;
+            color: white;
+            cursor: none; /* Sembunyikan kursor asli */
+        }
+
+        /* --- Lapisan Bintang (CSS Box Shadow Trick) --- */
+        .stars {
+            position: fixed; /* Fixed agar tidak ikut scroll */
+            top: 0;
+            left: 0;
+            width: 1px; /* Elemen sumber shadow kecil */
+            height: 1px;
+            background: transparent;
+            border-radius: 50%;
+            box-shadow: /* Akan diisi banyak shadow */;
+            animation: twinkle 5s linear infinite alternate; /* Animasi berkelip */
+            z-index: 1; /* Lapisan paling belakang */
+        }
+
+        @keyframes twinkle {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        /* Background (Paling Jauh, Banyak, Kecil) */
+        .stars-background {
+            /* !!! PENTING: Tambahkan JAUH LEBIH BANYAK shadow di sini untuk efek penuh !!! */
+            /* Format: x y blur spread color */
+            box-shadow:
+                100px 200px 0 0 #fff, 300px 50px 0 0 #fff, 50vw 30vh 1px 0 #eee,
+                80vw 80vh 0 0 #fff, 10vw 90vh 0 0 #ddd, 5% 15% 1px 0 #fff,
+                90% 10% 0 0 #eee, 15% 75% 0 0 #fff, 60vw 5vh 1px 0 #fff,
+                40vw 95vh 0 0 #ddd, 75% 35% 0 0 #eee, 22% 58% 1px 0 #fff,
+                150px 400px 0 0 #fff, 450px 150px 1px 0 #eee, 65vw 40vh 0 0 #fff,
+                25vw 70vh 0 0 #ddd, 85% 55% 1px 0 #eee, 33% 22% 0 0 #fff,
+                /* ... Tambahkan ~100-200 shadow lagi ... */
+                55% 85% 0 0 #fff, 88vw 22vh 0 0 #eee, 5vw 55vh 1px 0 #fff;
+            animation-duration: 7s; /* Kelip lebih lambat */
+        }
+
+        /* Middleground (Sedang) */
+        .stars-middleground {
+            width: 2px; height: 2px;
+            /* !!! PENTING: Tambahkan LEBIH BANYAK shadow di sini !!! */
+            box-shadow:
+                50px 100px 1px 0 #fff, 400px 300px 1px 0 #fff, 70vw 20vh 1px 1px #fff,
+                20vw 85vh 1px 0 #fff, 80% 45% 2px 0 #fff, 40% 60% 1px 1px #eee,
+                60% 15% 1px 0 #fff, 10vw 40vh 2px 0 #fff, 90vw 70vh 1px 1px #fff,
+                /* ... Tambahkan ~50-80 shadow lagi ... */
+                35% 90% 1px 0 #eee, 77vw 50vh 2px 0 #fff;
+             animation-duration: 5s;
+             z-index: 2;
+        }
+
+        /* Foreground (Paling Dekat, Sedikit, Besar) */
+        .stars-foreground {
+            width: 3px; height: 3px;
+            /* !!! PENTING: Tambahkan LEBIH BANYAK shadow di sini !!! */
+             box-shadow:
+                150px 250px 2px 1px #fff, 600px 100px 3px 1px #fff,
+                50vw 60vh 2px 2px #fff, 30vw 15vh 3px 1px #fff,
+                75% 75% 2px 1px #fff, 25% 40% 3px 1px #fff,
+                 /* ... Tambahkan ~20-30 shadow lagi ... */
+                 85vw 10vh 2px 1px #fff, 10% 80% 3px 0 #eee;
+             animation-duration: 3s; /* Kelip lebih cepat */
+             z-index: 3;
+        }
+
+        /* --- Styling Nebula --- */
+        .nebula {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            opacity: 0.18; /* Sedikit lebih terlihat */
+            mix-blend-mode: screen;
+            filter: blur(80px); /* Blur sangat kuat */
+            z-index: 0; /* Di belakang bintang (paling belakang) */
+            animation: slowRotate 120s linear infinite alternate; /* Gerak sangat lambat */
+        }
+
+        @keyframes slowRotate {
+            from { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+            to   { transform: translate(-50%, -50%) rotate(45deg) scale(1.2); }
+        }
+
+        .nebula-1 {
+            width: 120vmax; /* Sangat besar */
+            height: 120vmax;
+            background: radial-gradient(ellipse at center, hsla(260, 80%, 50%, 0.5) 0%, hsla(300, 70%, 40%, 0.3) 40%, transparent 70%);
+            animation-direction: normal;
+        }
+
+        .nebula-2 {
+            width: 100vmax;
+            height: 100vmax;
+            background: radial-gradient(ellipse at 30% 70%, hsla(180, 75%, 55%, 0.4) 0%, hsla(220, 60%, 45%, 0.2) 35%, transparent 65%);
+            animation-delay: -60s; /* Mulai dari posisi berbeda */
+            animation-direction: reverse;
+        }
+
+        /* --- Wadah Tata Surya & Matahari --- */
+        .solar-system-container {
+            position: relative;
+            width: 80vmin;
+            height: 80vmin;
+            max-width: 700px;
+            max-height: 700px;
+            z-index: 10; /* Di atas background */
+        }
+
+        .sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10vmin;
+            height: 10vmin;
+            max-width: 70px;
+            max-height: 70px;
+            background: radial-gradient(ellipse at center, #ffd700 0%, #ff8c00 60%, #ff4500 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 30px 5px #ff8c00, 0 0 50px 10px #ff4500;
+            z-index: 100; /* Paling atas */
+        }
+
+        /* --- Orbit & Planet --- */
+        .orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Garis orbit tipis */
+            border-radius: 50%;
+            transform-origin: center center;
+            transform: translate(-50%, -50%);
+            animation: rotate linear infinite;
+            z-index: 10; /* Di atas background tapi di bawah planet/matahari */
+        }
+
+        .planet {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background-color: gray;
+            z-index: 20; /* Di atas garis orbit */
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to   { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Spesifikasi Planet & Orbit */
+        /* Merkurius */
+        .mercury-orbit { width: 18vmin; height: 18vmin; animation-duration: 8.8s; }
+        .mercury { width: 1.5vmin; height: 1.5vmin; background-color: #a9a9a9; }
+
+        /* Venus */
+        .venus-orbit { width: 26vmin; height: 26vmin; animation-duration: 22.5s; }
+        .venus { width: 2.5vmin; height: 2.5vmin; background-color: #e6e6e6; }
+
+        /* Bumi */
+        .earth-orbit { width: 35vmin; height: 35vmin; animation-duration: 36.5s; }
+        .earth { width: 2.7vmin; height: 2.7vmin; background-color: #6495ed; }
+        .earth::after { /* Bulan */
+            content: ''; position: absolute; width: 0.7vmin; height: 0.7vmin;
+            background-color: #d3d3d3; border-radius: 50%; top: -1vmin;
+            left: 50%; transform: translateX(-50%);
+        }
+
+        /* Mars */
+        .mars-orbit { width: 45vmin; height: 45vmin; animation-duration: 68.7s; }
+        .mars { width: 2vmin; height: 2vmin; background-color: #ff6347; }
+
+        /* Jupiter */
+        .jupiter-orbit { width: 60vmin; height: 60vmin; animation-duration: 120s; }
+        .jupiter { width: 5vmin; height: 5vmin; background: linear-gradient(135deg, #f5deb3 25%, #deb887 25%, #deb887 50%, #f5deb3 50%, #f5deb3 75%, #deb887 75%, #deb887 100%); background-size: 10px 10px; }
+
+        /* Saturnus */
+        .saturn-orbit { width: 75vmin; height: 75vmin; animation-duration: 295s; }
+        .saturn { width: 4.5vmin; height: 4.5vmin; background-color: #f0e68c; }
+        .saturn::after { /* Cincin */
+            content: ''; position: absolute; top: 50%; left: 50%; width: 200%;
+            height: 10%; border: 0.3vmin solid rgba(210, 180, 140, 0.7);
+            border-radius: 50%; transform: translate(-50%, -50%) rotateX(80deg) rotateZ(-10deg) scaleY(2.5);
+            box-sizing: border-box; z-index: -1;
+        }
+
+        /* Uranus */
+        .uranus-orbit { width: 88vmin; height: 88vmin; animation-duration: 840s; }
+        .uranus { width: 3.5vmin; height: 3.5vmin; background-color: #afeeee; }
+
+        /* Neptunus */
+        .neptune-orbit { width: 100vmin; height: 100vmin; animation-duration: 1650s; }
+        .neptune { width: 3.3vmin; height: 3.3vmin; background-color: #4169e1; }
+
+        /* Pluto (planet katai) */
+        .pluto-orbit { width: 110vmin; height: 110vmin; animation-duration: 2480s; }
+        .pluto { width: 1vmin; height: 1vmin; background-color: #cccccc; }
+
+        /* Label Planet (Opsional) */
+        .planet-label {
+            position: absolute; top: -1.5em; left: 50%; transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7); font-size: 1.2vmin;
+            white-space: nowrap; display: none; pointer-events: none; /* Label tidak bisa di-hover */
+        }
+        .planet:hover .planet-label {
+            display: block; /* Tampilkan saat hover planetnya */
+        }
+
+        /* --- Sabuk Asteroid --- */
+        .asteroid-belt {
+            position: absolute; top: 50%; left: 50%;
+            width: 52.5vmin; /* Antara Mars & Jupiter */
+            height: 52.5vmin;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            animation: rotate 90s linear infinite; /* Kecepatan orbit belt */
+            z-index: 15; /* Di atas orbit planet biasa, di bawah planet */
+            pointer-events: none;
+        }
+
+        .asteroid {
+            position: absolute;
+            background-color: #8b4513; /* Coklat kusam */
+            opacity: 0.7;
+            filter: brightness(0.8);
+            border-radius: 40% 60% 55% 45% / 50% 45% 55% 50%; /* Bentuk acak */
+            z-index: 16; /* Di atas belt (jika belt punya border) */
+            /* Ukuran & posisi individual diatur di bawah */
+        }
+
+        /* Contoh Posisi Asteroid Manual (Tambahkan lebih banyak!) */
+        .asteroid.a1 { width: 0.8vmin; height: 0.6vmin; top: 0%; left: 50%; transform: translate(-50%, -50%) rotate(20deg); }
+        .asteroid.a2 { width: 0.5vmin; height: 0.7vmin; top: 10%; left: 95%; transform: translate(-50%, -50%) rotate(-10deg); }
+        .asteroid.a3 { width: 1vmin; height: 0.8vmin; top: 30%; left: 100%; transform: translate(-50%, -50%) rotate(45deg); border-radius: 60% 40% 45% 55% / 40% 55% 45% 50%; }
+        .asteroid.a4 { width: 0.6vmin; height: 0.6vmin; top: 50%; left: 90%; transform: translate(-50%, -50%) rotate(0deg); }
+        .asteroid.a5 { width: 0.9vmin; height: 0.5vmin; top: 70%; left: 98%; transform: translate(-50%, -50%) rotate(15deg); }
+        .asteroid.a6 { width: 0.7vmin; height: 0.8vmin; top: 90%; left: 70%; transform: translate(-50%, -50%) rotate(-30deg); border-radius: 50% 50% 40% 60% / 60% 40% 55% 45%; }
+        .asteroid.a7 { width: 0.4vmin; height: 0.5vmin; top: 100%; left: 40%; transform: translate(-50%, -50%) rotate(5deg); }
+        .asteroid.a8 { width: 0.8vmin; height: 0.8vmin; top: 80%; left: 5%; transform: translate(-50%, -50%) rotate(90deg); }
+        .asteroid.a9 { width: 0.6vmin; height: 0.9vmin; top: 55%; left: 0%; transform: translate(-50%, -50%) rotate(-15deg); border-radius: 45% 55% 50% 50% / 55% 45% 50% 50%; }
+        .asteroid.a10 { width: 0.7vmin; height: 0.7vmin; top: 25%; left: 5%; transform: translate(-50%, -50%) rotate(180deg); }
+        /* ... Tambahkan lebih banyak asteroid dengan posisi & bentuk acak ... */
+
+        /* --- Kursor Kustom (Jika Digunakan) --- */
+        .custom-cursor {
+            position: fixed; /* Fixed agar relatif thd viewport */
+            top: var(--mouse-y, 50%); /* Gunakan variabel CSS */
+            left: var(--mouse-x, 50%);
+            width: 25px;
+            height: 25px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none; /* Tidak bisa diklik */
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.1s ease-out, background-color 0.2s ease, border-color 0.2s ease;
+            z-index: 9999; /* Di atas segalanya */
+            backdrop-filter: saturate(1.5) brightness(1.1);
+            background-color: hsla(calc(180 + 180 * var(--mouse-influence)), 100%, 70%, 0.1);
+            border-color: hsla(calc(180 + 180 * var(--mouse-influence)), 100%, 80%, 0.8);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="stars stars-background"></div>
+    <div class="stars stars-middleground"></div>
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="stars stars-foreground"></div>
+
+    <div class="solar-system-container">
+        <div class="sun"></div>
+
+        <div class="orbit mercury-orbit">
+            <div class="planet mercury"><span class="planet-label">Merkurius</span></div>
+        </div>
+        <div class="orbit venus-orbit">
+            <div class="planet venus"><span class="planet-label">Venus</span></div>
+        </div>
+        <div class="orbit earth-orbit">
+            <div class="planet earth"><span class="planet-label">Bumi</span></div>
+        </div>
+        <div class="orbit mars-orbit">
+            <div class="planet mars"><span class="planet-label">Mars</span></div>
+        </div>
+
+        <div class="asteroid-belt">
+            <div class="asteroid a1"></div> <div class="asteroid a2"></div>
+            <div class="asteroid a3"></div> <div class="asteroid a4"></div>
+            <div class="asteroid a5"></div> <div class="asteroid a6"></div>
+            <div class="asteroid a7"></div> <div class="asteroid a8"></div>
+            <div class="asteroid a9"></div> <div class="asteroid a10"></div>
+            </div>
+
+        <div class="orbit jupiter-orbit">
+            <div class="planet jupiter"><span class="planet-label">Jupiter</span></div>
+        </div>
+        <div class="orbit saturn-orbit">
+            <div class="planet saturn"><span class="planet-label">Saturnus</span></div>
+        </div>
+        <div class="orbit uranus-orbit">
+            <div class="planet uranus"><span class="planet-label">Uranus</span></div>
+        </div>
+        <div class="orbit neptune-orbit">
+            <div class="planet neptune"><span class="planet-label">Neptunus</span></div>
+        </div>
+        <div class="orbit pluto-orbit">
+            <div class="planet pluto"><span class="planet-label">Pluto</span></div>
+        </div>
+
+    </div> <div class="custom-cursor" id="customCursor"></div>
+
+    <script>
+        const customCursor = document.getElementById('customCursor');
+        let targetMouseX = window.innerWidth / 2;
+        let targetMouseY = window.innerHeight / 2;
+        let currentMouseX = targetMouseX;
+        let currentMouseY = targetMouseY;
+        let influence = 0;
+
+        function updateCursor() {
+            // Interpolasi untuk gerakan halus
+            currentMouseX += (targetMouseX - currentMouseX) * 0.15;
+            currentMouseY += (targetMouseY - currentMouseY) * 0.15;
+
+             // Hitung influence berdasarkan jarak dari tengah (misalnya)
+            const dx = currentMouseX - window.innerWidth / 2;
+            const dy = currentMouseY - window.innerHeight / 2;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const maxDist = Math.sqrt(Math.pow(window.innerWidth / 2, 2) + Math.pow(window.innerHeight / 2, 2));
+            influence = Math.min(1, dist / (maxDist * 0.8));
+
+             // Update variabel CSS
+            document.documentElement.style.setProperty('--mouse-x', `${currentMouseX}px`);
+            document.documentElement.style.setProperty('--mouse-y', `${currentMouseY}px`);
+            document.documentElement.style.setProperty('--mouse-influence', influence);
+
+            requestAnimationFrame(updateCursor); // Loop
+        }
+
+        window.addEventListener('mousemove', (event) => {
+            targetMouseX = event.clientX;
+            targetMouseY = event.clientY;
+        });
+
+        // Mulai loop update kursor
+        requestAnimationFrame(updateCursor);
+    </script>
+
+</body>
+</html>
